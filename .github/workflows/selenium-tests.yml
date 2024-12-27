@@ -63,21 +63,32 @@ jobs:
           name: www-build
 
       - name: Extract artifacts
-        run: tar -xzvf www-build.tar.gz
+        run: |
+          tar -xzvf www-build.tar.gz
+          ls -l
 
       - name: Start Node.js server
         run: |
           nohup npm start > server.log 2>&1 &
-          sleep 5 # Allow server to start
+          sleep 10 # Allow server to start
 
       - name: Verify Node.js server is running
-        run: curl -f $TEST_BASE_URL
+        run: curl -f http://localhost:3000
 
       - name: Wait for Selenium server to be up
         run: |
           for i in {1..10}; do
             curl -s $SELENIUM_HOST && break || sleep 3
           done
+
+      - name: List files for debugging
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in the current directory:"
+          ls -ltra .
+          echo "Files in the tests directory:"
+          ls -ltra tests/
 
       - name: Run Selenium tests
         run: npx mocha tests/SeleniumTest.js

@@ -7,11 +7,20 @@ import assert from 'assert';
     try {
         // Start the server before running the test
 
+        const seleniumUrl = 'http://selenium:4444/wd/hub'; // Selenium server URL
+
+        // Initialize the WebDriver with Chrome
+        const driver = await new Builder()
+            .forBrowser('chrome')
+            .usingServer(seleniumUrl) // Specify the Selenium server
+            .build();
+
         // for local selenium testing
         //const serverUrl = 'http://localhost:3000';
 
         // for github action selenium testing
         const serverUrl = 'http://testserver:3000'; // Adjust port if necessary
+        
         await driver.get(serverUrl);
 
         // Wait for the timestamp to appear on the page
