@@ -84,8 +84,16 @@ jobs:
           pwd
           echo "Files in the current directory:"
           ls -ltra .
+          echo "Files in the src directory:"
+          ls -ltra src/
           echo "Files in the tests directory:"
           ls -ltra tests/
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: List node_modules
+        run: ls -l node_modules
 
       - name: Run Selenium tests
         run: npx mocha tests/SeleniumTest.mjs
