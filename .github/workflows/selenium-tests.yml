@@ -88,4 +88,4 @@ jobs:
           ls -ltra tests/
 
       - name: Run Selenium tests
-        run: npx mocha tests/SeleniumTest.js
+        run: npx mocha tests/SeleniumTest.mjs

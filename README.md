@@ -16,4 +16,4 @@ http://localhost:3000/
 Stop node server.js process
 npx mocha tests/test.js
 
-node tests/SeleniumTest.js
+node tests/SeleniumTest.mjs
