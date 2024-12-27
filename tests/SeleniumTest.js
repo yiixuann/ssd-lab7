@@ -6,7 +6,12 @@ import assert from 'assert';
 
     try {
         // Start the server before running the test
-        const serverUrl = 'http://localhost:3000'; // Adjust port if necessary
+
+        // for local selenium testing
+        //const serverUrl = 'http://localhost:3000';
+
+        // for github action selenium testing
+        const serverUrl = 'http://testserver:3000'; // Adjust port if necessary
         await driver.get(serverUrl);
 
         // Wait for the timestamp to appear on the page
