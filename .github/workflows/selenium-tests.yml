@@ -1,0 +1,83 @@
+name: Node.js Selenium Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-modules
+
+      - name: Install Node.js dependencies
+        run: npm install
+
+      - name: Prepare artifacts
+        run: |
+          tar -czvf www-build.tar.gz ./index.html ./server.js tests
+          ls -l
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: www-build
+          path: www-build.tar.gz
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: node:20
+      ports:
+        - 3000:3000
+      options: --network-alias=testserver
+
+    env:
+      TEST_BASE_URL: http://testserver:3000
+      SELENIUM_HOST: http://selenium:4444/wd/hub
+
+    services:
+      selenium:
+        image: selenium/standalone-chrome
+        ports:
+          - 4444:4444
+
+    steps:
+      - name: Download built files
+        uses: actions/download-artifact@v3
+        with:
+          name: www-build
+
+      - name: Extract artifacts
+        run: tar -xzvf www-build.tar.gz
+
+      - name: Start Node.js server
+        run: |
+          nohup npm start > server.log 2>&1 &
+          sleep 5 # Allow server to start
+
+      - name: Verify Node.js server is running
+        run: curl -f $TEST_BASE_URL
+
+      - name: Wait for Selenium server to be up
+        run: |
+          for i in {1..10}; do
+            curl -s $SELENIUM_HOST && break || sleep 3
+          done
+
+      - name: Run Selenium tests
+        run: npx mocha tests/SeleniumTest.js
