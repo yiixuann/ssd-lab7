@@ -67,17 +67,6 @@ jobs:
           tar -xzvf www-build.tar.gz
           ls -l
 
-      - name: Start Node.js server
-        run: |
-          node src/server.js > server.log 2>&1 &
-          sleep 10
-
-      - name: Wait for Selenium server to be up
-        run: |
-          for i in {1..10}; do
-            curl -s $SELENIUM_HOST && break || sleep 3
-          done
-
       - name: List files for debugging
         run: |
           echo "Current directory:"
@@ -88,6 +77,18 @@ jobs:
           ls -ltra src/
           echo "Files in the tests directory:"
           ls -ltra tests/
+
+      - name: Start Node.js server
+        run: |
+          node src/server.js
+          sleep 5
+          curl -f http://testserver:3000 || { echo "Server failed to start"; exit 1; }
+
+      - name: Wait for Selenium server to be up
+        run: |
+          for i in {1..10}; do
+            curl -s $SELENIUM_HOST && break || sleep 3
+          done
 
       - name: Install dependencies
         run: npm install
