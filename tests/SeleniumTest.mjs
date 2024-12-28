@@ -21,7 +21,8 @@ console.log(`Server URL: ${serverUrl}`);
 
 (async function testTimestamp() {
 
-    console.log("bf driver init")
+    console.log("before driver init")
+
     // Initialize the WebDriver with Chrome
     const driver = environment === 'github' 
         ? await new Builder()
@@ -40,7 +41,7 @@ console.log(`Server URL: ${serverUrl}`);
         
         await driver.get(serverUrl);
 
-        console.log("after driver get serverUrl")
+        console.log("after driver.get serverUrl")
 
         // Wait for the timestamp to appear on the page
         let timestampElement = await driver.wait(

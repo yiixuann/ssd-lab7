@@ -99,4 +99,4 @@ jobs:
         run: npm test
 
       - name: Run Selenium tests
-        run: npx mocha tests/SeleniumTest.mjs
+        run: node tests/SeleniumTest.mjs github
