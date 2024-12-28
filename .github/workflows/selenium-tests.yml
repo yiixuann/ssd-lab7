@@ -43,11 +43,11 @@ jobs:
     container:
       image: node:20
       ports:
-        - 80:80
+        - 3000:3000
       options: --network-alias=testserver
 
     env:
-      TEST_BASE_URL: http://testserver
+      TEST_BASE_URL: http://testserver:3000
       SELENIUM_HOST: http://selenium:4444/wd/hub
 
     services:
@@ -69,8 +69,8 @@ jobs:
 
       - name: Start Node.js server
         run: |
-          nohup npm start > server.log 2>&1 &
-          sleep 10 # Allow server to start
+          nohup run: node src/server.js > server.log 2>&1 &
+          sleep 5
 
       - name: Wait for Selenium server to be up
         run: |
