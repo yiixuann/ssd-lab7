@@ -86,9 +86,12 @@ jobs:
 
       - name: Start Node.js server
         run: |
-          node src/server.js
-          sleep 5
-          curl -f http://testserver:3000 || { echo "Server failed to start"; exit 1; }
+          nohup node src/server.js &  # Start the server in the background
+          sleep 5  # Give the server some time to start
+
+      - name: Verify server is running
+        run: |
+          curl -f http://localhost:3000 || { echo "Server failed to start"; exit 1; }
 
       - name: Wait for Selenium server to be up
         run: |
