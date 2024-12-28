@@ -1,27 +1,46 @@
 import { Builder, By, until } from 'selenium-webdriver';
 import assert from 'assert';
 
+// Get the argument (default to 'local' if not provided)
+const environment = process.argv[2] || 'local';
+
+// URLs based on environment
+// Obtain dev selenium server IP using: docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' selenium-server
+const seleniumUrl = environment === 'github' 
+  ? 'http://selenium:4444/wd/hub' 
+  : 'http://localhost:4444/wd/hub';
+
+// Note: Start the nodejs server before running the test locally
+const serverUrl = environment === 'github' 
+  ? 'http://testserver:3000' 
+  : 'http://localhost:3000';
+
+console.log(`Running tests in '${environment}' environment`);
+console.log(`Selenium URL: ${seleniumUrl}`);
+console.log(`Server URL: ${serverUrl}`);
+
 (async function testTimestamp() {
-    let driver = await new Builder().forBrowser('chrome').build();
+
+    console.log("bf driver init")
+    // Initialize the WebDriver with Chrome
+    const driver = environment === 'github' 
+        ? await new Builder()
+        .forBrowser('chrome')
+        .usingServer(seleniumUrl) // Specify the Selenium server
+        .build()
+        : await new Builder()
+        .forBrowser('chrome')
+        .usingServer(seleniumUrl) // Specify the Selenium server
+        .build();
+
 
     try {
-        // Start the server before running the test
 
-        const seleniumUrl = 'http://selenium:4444/wd/hub'; // Selenium server URL
-
-        // Initialize the WebDriver with Chrome
-        const driver = await new Builder()
-            .forBrowser('chrome')
-            .usingServer(seleniumUrl) // Specify the Selenium server
-            .build();
-
-        // for local selenium testing
-        //const serverUrl = 'http://localhost:3000';
-
-        // for github action selenium testing
-        const serverUrl = 'http://testserver:3000'; // Adjust port if necessary
+        console.log("after driver init")
         
         await driver.get(serverUrl);
+
+        console.log("after driver get serverUrl")
 
         // Wait for the timestamp to appear on the page
         let timestampElement = await driver.wait(
