@@ -7,5 +7,8 @@
     "chai": "^5.1.2",
     "mocha": "^11.0.1",
     "selenium-webdriver": "^4.27.0"
+  },
+  "scripts": {
+    "test": "mocha tests/*.js"
   }
 }

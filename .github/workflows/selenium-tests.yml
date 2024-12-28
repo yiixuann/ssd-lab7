@@ -95,5 +95,8 @@ jobs:
       - name: List node_modules
         run: ls -l node_modules
 
+      - name: Run unit tests
+        run: npm test
+
       - name: Run Selenium tests
         run: npx mocha tests/SeleniumTest.mjs
