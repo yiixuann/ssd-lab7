@@ -7,31 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-    
-    - name: Install dependencies
-      run: npm install
-    
-    - name: Create build artifact
-      run: tar -czf build.tar.gz .
-    
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifact
-        path: build.tar.gz
-
   test:
-    needs: build
     runs-on: ubuntu-latest
     
     services:
@@ -42,13 +18,7 @@ jobs:
           - 4444:4444
     
     steps:
-    - name: Download build artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifact
-    
-    - name: Extract artifact
-      run: tar -xzf build.tar.gz
+    - uses: actions/checkout@v4
     
     - name: Use Node.js
       uses: actions/setup-node@v4
@@ -64,21 +34,30 @@ jobs:
     - name: Start application server
       run: |
         node src/server.js &
-        sleep 5  # Give server time to start
+        echo $! > server.pid
+        sleep 5
     
-    - name: Wait for Selenium
+    - name: Wait for server
       run: |
         for i in {1..30}; do
-          if curl -sSf http://localhost:4444/wd/hub/status > /dev/null 2>&1; then
-            echo "Selenium is ready!"
+          if curl -sSf http://localhost:3000 > /dev/null 2>&1; then
+            echo "Server is ready!"
             break
           fi
-          echo "Waiting for Selenium..."
-          sleep 2
+          echo "Waiting for server..."
+          sleep 1
         done
     
     - name: Run Selenium tests
-      run: node tests/SeleniumTest.mjs github
-      env:
-        SERVER_URL: http://localhost:3000
-        SELENIUM_URL: http://localhost:4444/wd/hub
+      run: |
+        # For GitHub Actions, we need to use localhost instead of container names
+        export SERVER_URL=http://localhost:3000
+        export SELENIUM_URL=http://localhost:4444/wd/hub
+        node tests/SeleniumTest.mjs github
+    
+    - name: Stop server
+      if: always()
+      run: |
+        if [ -f server.pid ]; then
+          kill $(cat server.pid) || true
+        fi
