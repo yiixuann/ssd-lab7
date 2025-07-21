@@ -104,3 +104,5 @@ jobs:
 
       - name: Run Selenium tests
         run: node tests/SeleniumTest.mjs github
+
+        test
