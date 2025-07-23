@@ -22,3 +22,4 @@ jobs:
         with:
           name: Dependency-Check-Report
           path: dependency-check-report
+test:
